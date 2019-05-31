@@ -12,34 +12,22 @@ class Pokemon
     @db = db
   end
   
-  def save
+  def self.save(name, type, db)
     sql = <<-SQL
-      INSERT INTO pokemon (name, type, db)
-      VALUES (?, ?, ?)
+      INSERT INTO pokemon (name, type)
+      VALUES (?, ?);
     SQL
-    binding.pry
-    DB[:conn].execute(sql, self.name, self.type, self.db)
-    @id = DB[:conn].execute("SELECT last_insert_rowid() FROM pokemon")[0][0]
+    db.execute(sql, name, type)
   end
   
-  # def self.create_table
-  #   sql = <<-SQL
-  #     CREATE TABLE IF NOT EXISTS pokemons (
-  #     id INTEGER PRIMARY KEY,
-  #     name TEXT,
-  #     type TEXT
-  #     )
-  #   SQL
-  #   DB[:conn].execute(sql)
-  # end
-  
-  def self.find(id)
+  def self.find(id, db)
     sql = <<-SQL
       SELECT * 
-      FROM pokemons
+      FROM pokemon
       WHERE id = ?
     SQL
-    DB[:conn].execute(sql, id)
+    pokemon_data = db.execute(sql, id).flatten
+    Pokemon.new(id: pokemon_data[0], name: pokemon_data[1], type: pokemon_data[2], db: db)
     
   end
   
